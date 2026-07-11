@@ -63,6 +63,7 @@ export default function UploadCSV({ onFileUpload, fileName }: UploadCSVProps) {
           accept=".csv,text/csv,application/vnd.ms-excel,text/plain" 
           className="w-0 h-0 opacity-0 absolute overflow-hidden" 
           onChange={handleFileSelect}
+          onClick={(e) => { (e.target as HTMLInputElement).value = ''; }}
         />
       </label>
 
