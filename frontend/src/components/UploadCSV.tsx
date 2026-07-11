@@ -1,5 +1,4 @@
-import React, { useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
+import React, { useState, useRef } from 'react';
 import { UploadCloud } from 'lucide-react';
 
 interface UploadCSVProps {
@@ -8,24 +7,30 @@ interface UploadCSVProps {
 }
 
 export default function UploadCSV({ onFileUpload, fileName }: UploadCSVProps) {
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 0) {
-      // Mock an event object to reuse existing logic
-      onFileUpload({ target: { files: acceptedFiles } });
-    }
-  }, [onFileUpload]);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: { 
-      'text/csv': ['.csv'],
-      'application/vnd.ms-excel': ['.csv'],
-      'application/csv': ['.csv'],
-      'text/plain': ['.csv']
-    },
-    maxFiles: 1,
-    maxSize: 5 * 1024 * 1024,
-  });
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragActive(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragActive(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      onFileUpload({ target: { files: e.dataTransfer.files } });
+    }
+  };
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <div className="bg-white p-8 border border-slate-200 rounded-3xl shadow-sm transition-all">
@@ -33,7 +38,10 @@ export default function UploadCSV({ onFileUpload, fileName }: UploadCSVProps) {
       <p className="text-sm text-slate-500 mb-6">Drag and drop your file here or click to browse.</p>
 
       <div 
-        {...getRootProps()} 
+        onClick={handleClick}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
         className={`block w-full border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors group ${
           isDragActive ? 'border-emerald-500 bg-emerald-50' : 'border-slate-300 bg-slate-50 hover:bg-slate-100'
         }`}
@@ -50,7 +58,13 @@ export default function UploadCSV({ onFileUpload, fileName }: UploadCSVProps) {
         <span className="text-xs text-slate-400 font-medium px-3 py-1 bg-white border border-slate-200 rounded-full inline-block">
           Supported file: .csv (max 5MB)
         </span>
-        <input {...getInputProps()} />
+        <input 
+          type="file" 
+          accept=".csv,text/csv,application/vnd.ms-excel" 
+          className="hidden" 
+          ref={fileInputRef}
+          onChange={onFileUpload}
+        />
       </div>
 
       {fileName && (
