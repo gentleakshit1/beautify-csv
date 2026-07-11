@@ -43,7 +43,7 @@ export default function Home() {
     formData.append('file', file);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://groweasy-api-zfsz.onrender.com';
       const response = await axios.post(`${apiUrl}/api/upload-csv/`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
