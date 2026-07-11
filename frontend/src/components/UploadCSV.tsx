@@ -17,7 +17,12 @@ export default function UploadCSV({ onFileUpload, fileName }: UploadCSVProps) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { 'text/csv': ['.csv'] },
+    accept: { 
+      'text/csv': ['.csv'],
+      'application/vnd.ms-excel': ['.csv'],
+      'application/csv': ['.csv'],
+      'text/plain': ['.csv']
+    },
     maxFiles: 1,
     maxSize: 5 * 1024 * 1024,
   });
