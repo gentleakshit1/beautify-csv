@@ -51,3 +51,54 @@ npm run dev
 - **Retry Mechanism**: The backend uses `tenacity` to retry failed API calls to the LLM up to 3 times before skipping the batch.
 - **Docker Setup**: Unified `docker-compose.yml` and individual Dockerfiles provided.
 - **Deployment Ready**: Included `vercel.json` and `render.yaml` configurations.
+
+## Architecture Diagrams
+
+### High Level Design (HLD)
+```mermaid
+graph TD
+    Client[Next.js Client] -->|Uploads CSV| UI(Upload Modal)
+    UI -->|Displays Preview| DataGrid[Preview Table]
+    DataGrid -->|POST /api/upload-csv/| API[Django REST API]
+    API -->|Sends chunked data| LangChain[LangChain AI Agent]
+    LangChain -->|Prompt + JSON| LLM[OpenRouter / GPT-4o]
+    LLM -->|Extracts CRM JSON| LangChain
+    LangChain -->|Validates Schema| Parser[Pydantic Output Parser]
+    Parser -->|Returns structured lists| API
+    API -->|Displays Extracted Results| Client
+    API -->|Saves if configured| Database[(Neon PostgreSQL DB)]
+```
+
+### Low Level Design (LLD) - AI Extraction Flow
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend as Next.js UI
+    participant Views as Django Views
+    participant Extractor as AI Extractor
+    participant LLM as OpenRouter API
+
+    User->>Frontend: Selects CSV File
+    Frontend->>Frontend: parse with PapaParse (preview)
+    User->>Frontend: Clicks "Confirm & Extract"
+    Frontend->>Views: POST multipart/form-data
+    Views->>Views: Converts CSV to dict list
+    Views->>Views: Chunks list into batches of 10
+    Views->>Extractor: extract_crm_data(batch)
+    
+    loop For each batch
+        Extractor->>LLM: Chain.invoke(batch)
+        alt Success
+            LLM-->>Extractor: Structured JSON response
+        else Failure (e.g. 429, 402)
+            Extractor-->>Extractor: Tenacity @retry (up to 3x)
+            alt Retry Exhausted
+                Extractor-->>Extractor: Append batch to 'skipped'
+            end
+        end
+    end
+    
+    Extractor->>Views: Return parsed[], skipped[]
+    Views-->>Frontend: JSON Response {total_imported, successfully_parsed}
+    Frontend-->>User: Renders ResultsView
+```
