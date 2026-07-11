@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Papa from 'papaparse';
 import axios from 'axios';
-import { UploadCloud, X } from 'lucide-react';
+import { UploadCloud, X, AlertCircle } from 'lucide-react';
 import UploadCSV from '@/components/UploadCSV';
 import PreviewTable from '@/components/PreviewTable';
 import ResultsView from '@/components/ResultsView';
@@ -15,8 +15,10 @@ export default function Home() {
   const [isUploading, setIsUploading] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleFileUpload = (selectedFile: File) => {
+    setErrorMessage(null);
     if (selectedFile) {
       setFile(selectedFile);
       Papa.parse(selectedFile, {
@@ -29,11 +31,11 @@ export default function Home() {
             setPreviewData(results.data);
             setShowModal(true);
           } else {
-            alert("The CSV file appears to be empty or improperly formatted.");
+            setErrorMessage("The CSV file appears to be empty or improperly formatted.");
           }
         },
         error: (error) => {
-          alert("Error parsing CSV: " + error.message);
+          setErrorMessage("Error parsing CSV: " + error.message);
         }
       });
     }
@@ -42,6 +44,7 @@ export default function Home() {
   const handleConfirmImport = async () => {
     if (!file) return;
     setIsUploading(true);
+    setErrorMessage(null);
     
     const formData = new FormData();
     formData.append('file', file);
@@ -53,9 +56,11 @@ export default function Home() {
       });
       setResults(response.data);
       setShowModal(false); // Close modal on success
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error uploading file", error);
-      alert("Failed to upload and process CSV.");
+      const backendError = error.response?.data?.error || error.message || "Failed to upload and process CSV.";
+      setErrorMessage(`Import Failed: ${backendError}`);
+      setShowModal(false);
     } finally {
       setIsUploading(false);
     }
@@ -87,6 +92,24 @@ export default function Home() {
           <h1 className="text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">Import Leads via CSV</h1>
           <p className="text-slate-500 max-w-lg mx-auto">Upload a CSV file to bulk import leads into your system. Our AI will intelligently extract the CRM fields.</p>
         </div>
+
+        {errorMessage && (
+          <div className="mb-8 bg-rose-50 border border-rose-200 rounded-2xl p-6 flex items-start shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="bg-rose-100 p-2 rounded-full mr-4 shrink-0 mt-0.5">
+              <AlertCircle className="w-6 h-6 text-rose-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-rose-800 font-bold text-lg mb-1">Upload Error</h3>
+              <p className="text-rose-600 text-sm leading-relaxed">{errorMessage}</p>
+            </div>
+            <button 
+              onClick={() => setErrorMessage(null)}
+              className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-100 rounded-full transition-colors ml-4"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
 
         {!results ? (
           <UploadCSV onFileUpload={handleFileUpload} fileName={file?.name} />

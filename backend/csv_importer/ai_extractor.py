@@ -85,9 +85,8 @@ def extract_crm_data(batch: List[dict]):
         response = invoke_with_retry()
     except Exception as e:
         print(f"Failed to process batch after retries: {e}")
-        # If it fails, add them all to skipped
-        return [], batch
-
+        # Let the exception bubble up to views.py to send to the frontend
+        raise Exception(f"AI Extraction failed: {str(e)}")
     
     extracted_records = response.records
     
