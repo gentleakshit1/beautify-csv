@@ -27,6 +27,14 @@ export default function UploadCSV({ onFileUpload, fileName }: UploadCSVProps) {
     }
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      onFileUpload(e);
+      // Clear the value so the exact same file can be selected again
+      e.target.value = '';
+    }
+  };
+
   return (
     <div className="bg-white p-8 border border-slate-200 rounded-3xl shadow-sm transition-all">
       <h2 className="text-lg font-bold text-slate-900 mb-1">Upload CSV File</h2>
@@ -56,7 +64,7 @@ export default function UploadCSV({ onFileUpload, fileName }: UploadCSVProps) {
           type="file" 
           accept=".csv,text/csv,application/vnd.ms-excel,text/plain" 
           className="w-0 h-0 opacity-0 absolute overflow-hidden" 
-          onChange={onFileUpload}
+          onChange={handleFileSelect}
         />
       </label>
 
