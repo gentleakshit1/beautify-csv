@@ -4,6 +4,7 @@ from rest_framework.response import Response
 import pandas as pd
 import json
 from .ai_extractor import extract_crm_data
+from .models import Lead
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser])
@@ -29,6 +30,10 @@ def upload_csv(request):
             parsed, skipped = extract_crm_data(batch)
             all_successfully_parsed.extend(parsed)
             all_skipped.extend(skipped)
+            
+        # Save to database
+        lead_instances = [Lead(**record) for record in all_successfully_parsed]
+        Lead.objects.bulk_create(lead_instances)
             
         return Response({
             'total_imported': len(all_successfully_parsed),
