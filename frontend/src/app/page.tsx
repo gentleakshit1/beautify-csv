@@ -18,26 +18,34 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleFileUpload = (selectedFile: File) => {
+    console.log("page.tsx: handleFileUpload received file:", selectedFile?.name);
     setErrorMessage(null);
     if (selectedFile) {
       setFile(selectedFile);
+      console.log("page.tsx: Starting Papa.parse...");
       Papa.parse(selectedFile, {
         header: true,
         skipEmptyLines: true,
         preview: 10,
         complete: (results) => {
+          console.log("page.tsx: Papa.parse complete!", results);
           if (results.data && results.data.length > 0) {
+            console.log("page.tsx: Found valid data, showing modal.");
             setPreviewHeaders(Object.keys(results.data[0] as any));
             setPreviewData(results.data);
             setShowModal(true);
           } else {
+            console.log("page.tsx: Papa.parse completed but data array is empty.");
             setErrorMessage("The CSV file appears to be empty or improperly formatted.");
           }
         },
         error: (error) => {
+          console.error("page.tsx: Papa.parse threw an error!", error);
           setErrorMessage("Error parsing CSV: " + error.message);
         }
       });
+    } else {
+      console.log("page.tsx: handleFileUpload called with null selectedFile");
     }
   };
 

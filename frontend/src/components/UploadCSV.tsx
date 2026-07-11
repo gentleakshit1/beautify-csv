@@ -28,8 +28,12 @@ export default function UploadCSV({ onFileUpload, fileName }: UploadCSVProps) {
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("UploadCSV: handleFileSelect triggered!", e.target.files);
     if (e.target.files && e.target.files.length > 0) {
+      console.log("UploadCSV: Passing file to parent:", e.target.files[0].name);
       onFileUpload(e.target.files[0]);
+    } else {
+      console.log("UploadCSV: No files detected in event.");
     }
   };
 
@@ -65,7 +69,10 @@ export default function UploadCSV({ onFileUpload, fileName }: UploadCSVProps) {
           accept=".csv,text/csv,application/vnd.ms-excel,text/plain" 
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
           onChange={handleFileSelect}
-          onClick={(e) => { (e.target as HTMLInputElement).value = ''; }}
+          onClick={(e) => { 
+            console.log("UploadCSV: input clicked, clearing value.");
+            (e.target as HTMLInputElement).value = ''; 
+          }}
         />
       </div>
 
