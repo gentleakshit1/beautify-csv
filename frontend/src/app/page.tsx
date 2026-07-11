@@ -16,8 +16,7 @@ export default function Home() {
   const [results, setResults] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement> | any) => {
-    const selectedFile = event.target.files?.[0];
+  const handleFileUpload = (selectedFile: File) => {
     if (selectedFile) {
       setFile(selectedFile);
       Papa.parse(selectedFile, {
@@ -25,12 +24,17 @@ export default function Home() {
         skipEmptyLines: true,
         preview: 10,
         complete: (results) => {
-          if (results.data.length > 0) {
+          if (results.data && results.data.length > 0) {
             setPreviewHeaders(Object.keys(results.data[0] as any));
             setPreviewData(results.data);
-            setShowModal(true); // Pop-up the preview!
+            setShowModal(true);
+          } else {
+            alert("The CSV file appears to be empty or improperly formatted.");
           }
         },
+        error: (error) => {
+          alert("Error parsing CSV: " + error.message);
+        }
       });
     }
   };

@@ -23,13 +23,13 @@ export default function UploadCSV({ onFileUpload, fileName }: UploadCSVProps) {
     e.preventDefault();
     setIsDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      onFileUpload({ target: { files: e.dataTransfer.files } });
+      onFileUpload(e.dataTransfer.files[0]);
     }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      onFileUpload(e);
+      onFileUpload(e.target.files[0]);
     }
   };
 
