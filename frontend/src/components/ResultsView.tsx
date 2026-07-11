@@ -2,7 +2,7 @@ import React from 'react';
 import { CheckCircle2, RotateCcw } from 'lucide-react';
 
 interface ResultsViewProps {
-  results: any;
+  results: Record<string, any>;
   onReset: () => void;
 }
 

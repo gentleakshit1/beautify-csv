@@ -3,7 +3,7 @@ import { Sparkles, Loader2 } from 'lucide-react';
 
 interface PreviewTableProps {
   previewHeaders: string[];
-  previewData: any[];
+  previewData: Record<string, unknown>[];
   isUploading: boolean;
   onConfirmImport: () => void;
 }
