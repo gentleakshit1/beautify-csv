@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { UploadCloud } from 'lucide-react';
 
 interface UploadCSVProps {
@@ -8,7 +8,6 @@ interface UploadCSVProps {
 
 export default function UploadCSV({ onFileUpload, fileName }: UploadCSVProps) {
   const [isDragActive, setIsDragActive] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -28,17 +27,12 @@ export default function UploadCSV({ onFileUpload, fileName }: UploadCSVProps) {
     }
   };
 
-  const handleClick = () => {
-    fileInputRef.current?.click();
-  };
-
   return (
     <div className="bg-white p-8 border border-slate-200 rounded-3xl shadow-sm transition-all">
       <h2 className="text-lg font-bold text-slate-900 mb-1">Upload CSV File</h2>
       <p className="text-sm text-slate-500 mb-6">Drag and drop your file here or click to browse.</p>
 
-      <div 
-        onClick={handleClick}
+      <label 
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -60,12 +54,11 @@ export default function UploadCSV({ onFileUpload, fileName }: UploadCSVProps) {
         </span>
         <input 
           type="file" 
-          accept=".csv,text/csv,application/vnd.ms-excel" 
-          className="hidden" 
-          ref={fileInputRef}
+          accept=".csv,text/csv,application/vnd.ms-excel,text/plain" 
+          className="w-0 h-0 opacity-0 absolute overflow-hidden" 
           onChange={onFileUpload}
         />
-      </div>
+      </label>
 
       {fileName && (
         <div className="mt-6 p-4 border border-emerald-200 bg-emerald-50 rounded-xl flex items-center justify-between">
