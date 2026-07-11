@@ -157,3 +157,5 @@ export default function Home() {
     </div>
   );
 }
+
+// Vercel Edge Cache Invalidation: v2
