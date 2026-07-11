@@ -30,8 +30,6 @@ export default function UploadCSV({ onFileUpload, fileName }: UploadCSVProps) {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       onFileUpload(e);
-      // Clear the value so the exact same file can be selected again
-      e.target.value = '';
     }
   };
 
