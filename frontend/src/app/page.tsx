@@ -43,7 +43,8 @@ export default function Home() {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('http://localhost:8000/api/upload-csv/', formData, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await axios.post(`${apiUrl}/api/upload-csv/`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setResults(response.data);
